@@ -131,11 +131,15 @@ def analyze_stock_advanced(alice, token, strategy, exchange='NSE'):
         volume_nodes = analyze_volume_profile(df)
         result['Volume_Nodes'] = volume_nodes['price_level'].tolist()
         
-        # Calculate overall strength based on strategy
+
         if strategy == "Price Action Breakout":
-            # Strong breakouts with volume confirmation
-            if patterns and df['volume'].iloc[-1] > df['volume'].rolling(20).mean().iloc[-1] * 1.5:
+            # Strong breakout with volume confirmation and increasing volume trend
+            breakout_volume = df['volume'].iloc[-1] > df['volume'].rolling(20).mean().iloc[-1] * 1.5
+            increasing_volume_trend = df['volume'].iloc[-5:].mean() > df['volume'].iloc[-20:].mean()
+            
+            if patterns and breakout_volume and increasing_volume_trend:
                 result['Strength'] = len(patterns) * 2
+
                 
         elif strategy == "Volume Profile Analysis":
             # High volume nodes near current price
